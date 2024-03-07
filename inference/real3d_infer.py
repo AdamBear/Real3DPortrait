@@ -284,8 +284,13 @@ class GeneFace2Infer:
             sample['trans'] = torch.tensor(coeff_dict['trans']).reshape([1,3]).cuda().repeat([t_x//2,1])
         else: # from file
             if inp['drv_pose_name'].endswith('.mp4'):
-                # extract coeff from video
-                drv_pose_coeff_dict = fit_3dmm_for_a_video(inp['drv_pose_name'], save=False)
+                npy_file_name, _ = os.path.splitext(inp['drv_pose_name'])
+                if os.path.isfile(npy_file_name + ".npy"):
+                    drv_pose_coeff_dict = np.load(npy_file_name + ".npy", allow_pickle=True).tolist()
+                else:
+                    # extract coeff from video
+                    drv_pose_coeff_dict = fit_3dmm_for_a_video(inp['drv_pose_name'], save=False)
+                    np.save(npy_file_name + ".npy", drv_pose_coeff_dict)
             else:
                 # load from npy
                 drv_pose_coeff_dict = np.load(inp['drv_pose_name'], allow_pickle=True).tolist()
