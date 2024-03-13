@@ -362,6 +362,7 @@ class GeneFace2Infer:
         if len_mel % x_multiply == 0:
             num_to_pad = 0
         else:
+
             num_to_pad = x_multiply - len_mel % x_multiply
         mfcc = np.pad(mfcc, pad_width=((0,num_to_pad), (0,0)))
         return mfcc

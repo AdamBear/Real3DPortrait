@@ -130,7 +130,11 @@ class OSAvatarSECC_Img2plane(OSAvatar_Img2plane):
         # Run superresolution to get final image
         rgb_image = feature_image[:, :3]
         ret['weights_img'] = weights_image
-        sr_image = self._forward_sr(rgb_image, feature_image, cond, ret, **synthesis_kwargs)
+
+        # disable sr to see speed
+        # sr_image = self._forward_sr(rgb_image, feature_image, cond, ret, **synthesis_kwargs)
+        sr_image = rgb_image
+
         rgb_image = rgb_image.clamp(-1,1)
         sr_image = sr_image.clamp(-1,1)
         ret.update({'image_raw': rgb_image, 'image_depth': depth_image, 'image': sr_image, 'image_feature': feature_image[:, 3:], 'plane': planes})
