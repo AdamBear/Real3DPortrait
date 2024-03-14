@@ -60,8 +60,12 @@ class OSAvatarSECC_Img2plane_Torso(OSAvatarSECC_Img2plane):
         rgb_image = feature_image[:, :3]
         ret['weights_img'] = weights_image
         ones_ws = torch.ones([feature_image.shape[0], 14, hparams['w_dim']], dtype=feature_image.dtype, device=feature_image.device)
-        facev2v_ret = self.superresolution.infer_forward_stage1(rgb_image, feature_image, ones_ws, cond['ref_torso_img'], cond['bg_img'], ret['weights_img'], cond['segmap'], cond['kp_s'], cond['kp_d'], noise_mode=self.rendering_kwargs['superresolution_noise_mode'], **{k:synthesis_kwargs[k] for k in synthesis_kwargs.keys() if k != 'noise_mode'})
+
+        # disable sr to see speed
+        # facev2v_ret = self.superresolution.infer_forward_stage1(rgb_image, feature_image, ones_ws, cond['ref_torso_img'], cond['bg_img'], ret['weights_img'], cond['segmap'], cond['kp_s'], cond['kp_d'], noise_mode=self.rendering_kwargs['superresolution_noise_mode'], **{k:synthesis_kwargs[k] for k in synthesis_kwargs.keys() if k != 'noise_mode'})
         rgb_image = rgb_image.clamp(-1,1)
+
+        facev2v_ret = {'image': rgb_image}
         facev2v_ret.update({'image_raw': rgb_image, 'image_depth': depth_image, 'image_feature': feature_image[:, 3:], 'plane': planes})
         return facev2v_ret
     
