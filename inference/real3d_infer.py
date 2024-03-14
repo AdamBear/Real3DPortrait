@@ -515,7 +515,9 @@ class GeneFace2Infer:
 
                 secc_img = secc_img / 127.5 - 1
                 secc_img = torch.from_numpy(secc_img).permute(0, 3, 1, 2)
-                imgs = torch.cat([ref_img_gt.repeat([imgs.shape[0],1,1,1]).cpu(), secc_img, F.interpolate(imgs_raw, (512,512)).cpu(), depth_img, imgs.cpu()], dim=-1)
+                #imgs = torch.cat([ref_img_gt.repeat([imgs.shape[0],1,1,1]).cpu(), secc_img, F.interpolate(imgs_raw, (512,512)).cpu(), depth_img, imgs.cpu()], dim=-1)
+                imgs = torch.cat([ref_img_gt.repeat([imgs.shape[0], 1, 1, 1]).cpu(), secc_img,
+                                  F.interpolate(imgs_raw, (512, 512)).cpu(), depth_img], dim=-1)
             elif inp['out_mode'] == 'final':
                 imgs = imgs.cpu()
             elif inp['out_mode'] == 'debug':
