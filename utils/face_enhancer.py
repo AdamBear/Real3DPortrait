@@ -9,6 +9,7 @@ import os
 
 import cv2
 
+
 def load_video_to_cv2(input_path):
     video_stream = cv2.VideoCapture(input_path)
     fps = video_stream.get(cv2.CAP_PROP_FPS)
@@ -49,7 +50,7 @@ def enhancer_generator_with_len(images, method='gfpgan', bg_upsampler='realesrga
     gen_with_len = GeneratorWithLen(gen, len(images))
     return gen_with_len
 
-def enhancer_generator_no_len(images, method='gfpgan', bg_upsampler='realesrgan', upscale=2):
+def enhancer_generator_no_len(images, method='gfpgan', bg_upsampler='realesrgan', upscale=2, interpolator=None):
     """ Provide a generator function so that all of the enhanced images don't need
     to be stored in memory at the same time. This can save tons of RAM compared to
     the enhancer function. """
@@ -117,9 +118,18 @@ def enhancer_generator_no_len(images, method='gfpgan', bg_upsampler='realesrgan'
         channel_multiplier=channel_multiplier,
         bg_upsampler=bg_upsampler)
 
+    need_interpolate = False
+    last_f = None
+    i = 0
+
     # ------------------------ restore ------------------------
     for idx in tqdm(range(len(images)), 'Face Enhancer:'):
-        
+        i += 1
+
+        if i % 2 == 0 and interpolator is not None:
+            need_interpolate = True
+            continue
+
         img = cv2.cvtColor(images[idx], cv2.COLOR_RGB2BGR)
         
         # restore faces and background if necessary
@@ -130,4 +140,12 @@ def enhancer_generator_no_len(images, method='gfpgan', bg_upsampler='realesrgan'
             paste_back=True)
         
         r_img = cv2.cvtColor(r_img, cv2.COLOR_BGR2RGB)
+
+        if need_interpolate:
+            need_interpolate = False
+            mid_f = interpolator.interpolate(last_f, r_img)
+            last_f = r_img
+            yield mid_f
+
+        last_f = r_img
         yield r_img
